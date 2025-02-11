@@ -1,5 +1,6 @@
 import asyncio
 
+import aiogram.exceptions
 from aiogram import types, Bot, Dispatcher
 from aiogram.filters import Command
 from random import *
@@ -102,7 +103,7 @@ async def handle_text(message: types.Message):
         await filial(message)
     elif message.text == "↗️Ortga":
         await olish(message)
-    elif message.text == "🍱 Setlar":
+    elif message.text == "🍱 Setlar" or message.text=="👈🏻Ortga":
         await set(message)
     elif message.text == "⬆️Ortga":
         await back(message)
@@ -334,6 +335,9 @@ async def handle_text(message: types.Message):
         await chizi(message)
     elif message.text == "Mayonez":
         await mayonez(message)
+    # elif message.text == "📥 Savat":
+        # await view_basket(message)
+
 
 
 
@@ -895,25 +899,87 @@ async def sous(message: types.Message):
     print(user_data)
 
 
+
+
 async def kombo(message: types.Message):
     user_id = message.from_user.id
-    kombo = message.text
-    user_data[user_id]['kombo'] = kombo
+    item = message.text
+    user_data[user_id]['kombo'] = item
+    price = 22000
     button = [
-        [types.InlineKeyboardButton(text="-", callback_data='-'),
-         types.InlineKeyboardButton(text="1", callback_data='1'),
-         types.InlineKeyboardButton(text="+", callback_data='+')],
-        [types.InlineKeyboardButton(text="📥 Savatga qo'shish ✅", callback_data='text')]
+        [types.InlineKeyboardButton(text="-", callback_data=f"minus_{item}"),
+         types.InlineKeyboardButton(text="1", callback_data=f"miqdor_{item}"),
+         types.InlineKeyboardButton(text="+", callback_data=f"plus_{item}")],
+        [types.InlineKeyboardButton(text="📥 Savatga qo'shish ✅", callback_data=f"add_{item}")]
     ]
+    buttons = [
+        [types.KeyboardButton(text='👈🏻Ortga'), types.KeyboardButton(text="📥 Savatga qo'shish ✅")]
+    ]
+    keyboards = types.ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True)
     keyboard = types.InlineKeyboardMarkup(inline_keyboard=button, resize_keyboard=True)
     file_path = "image/kombo.jpg"
-    caption_text = ("Kombo set\n"
+    caption_text = (f"{item}\n"
                     "Fri kartoshkasi Coca-cola 0.5\n"
-                    "Narxi: 22 000 soʻm")
-    await message.answer("Miqdorini belgilang")
+                    f"Narxi:{price} so'm")
+    await message.answer("Miqdorini belgilang", reply_markup=keyboards)
     await message.reply_photo(caption=caption_text,photo=types.FSInputFile(path=file_path), parse_mode='Markdown', reply_markup=keyboard)
     # await message.answer("", reply_markup=keyboard)
     print(user_data)
+
+count = 1
+@dp.callback_query(lambda c: c.data.startswith(('plus', 'minus', 'add')))
+async def checkcallback(callback: types.CallbackQuery):
+    user_id = callback.from_user.id
+    narx = callback.data
+    price = 22000
+    name = "Fri kartoshkasiCoca-cola 0.5\n"
+    command, item = callback.data.split('_')
+    global count
+    # global price
+
+    if command == 'plus':
+        count += 1
+    elif command == 'minus':
+        if count > 1:
+            count -= 1
+    elif command == 'add':
+        if 'basket' not in user_data[user_id]:
+            user_data[user_id]['basket'] = {item: count}
+        else:
+            if item in user_data[user_id]['basket']:
+                user_data[user_id]['basket'][item] += count
+            else:
+                user_data[user_id]['basket'][item] = count
+
+        count = 1  # Reset count after adding item to the basket
+        await callback.message.answer(f"Mahsulot: {name} savatga muvaffaqiyatli qo'shildi ✅\n"
+                                    "Davom etamizmi?")
+
+    print(f"Count:{count}")
+    button = [
+        [types.InlineKeyboardButton(text=f"-", callback_data=f"minus_{item}"),
+         types.InlineKeyboardButton(text=f"{count}", callback_data=f"miqdor_{item}"),
+         types.InlineKeyboardButton(text=f"+", callback_data=f"plus_{item}"), ],
+        [types.InlineKeyboardButton(text=f"📥Savatga qo'shish✅", callback_data=f"add_{item}"), ],
+    ]
+    keyboard = types.InlineKeyboardMarkup(inline_keyboard=button, resize_keyboard=True)
+    price = price * count  # Update the price based on count
+    try:
+        print(user_data)
+        await callback.message.edit_caption(
+            caption="Kombo set\n\n"
+                    f"Nomi: {name}\n"
+                    f"Narxi: {price} so'm",
+            reply_markup=keyboard
+        )
+    except aiogram.exceptions.TelegramBadRequest as e:
+        if "message is not modified" in str(e):
+            print("Xabar o'zgarmaganligi sababli yangilash o'tkazib yuborildi.")
+        else:
+            print(f"Xato yuz berdi: {e}")
+
+
+
 
 async def barbeku_burger(message: types.Message):
     user_id = message.from_user.id
@@ -935,7 +1001,34 @@ async def barbeku_burger(message: types.Message):
     # await message.answer("", reply_markup=keyboard)
     print(user_data)
 
+# Savatni ko'rish funksiyasi
+@dp.callback_query(lambda c: c.data == "view_basket")
+async def view_basket(callback: types.CallbackQuery):
+    user_id = callback.from_user.id  # Foydalanuvchi ID'sini olish
 
+    # Agar foydalanuvchining savati bo'lsa
+    if user_id in user_data and 'basket' in user_data[user_id] and user_data[user_id]['basket']:
+        basket_items = ""  # Savatdagi mahsulotlarni saqlash uchun bo'sh string
+        total_price = 0  # Umumiy narxni boshlang'ich qiymat
+
+        # Savatdagi barcha mahsulotlar va ularning miqdorini olish
+        for item, quantity in user_data[user_id]['basket'].items():
+            basket_items += f"{item}: {quantity}\n"  # Mahsulot va miqdor
+            total_price += quantity * price  # Umumiy narxni hisoblash
+
+        # Foydalanuvchiga savatdagi mahsulotlar va umumiy narxni yuborish
+        await callback.message.answer(
+            f"Savatdagi mahsulotlar:\n\n{basket_items}\nUmumiy narx: {total_price} so'm"
+        )
+    else:
+        # Agar savat bo'sh bo'lsa
+        await callback.message.answer("Savatda hech qanday mahsulot yo'q.")
+
+
+
+
+
+# user_data[user_id]['basket'] = {item: count}
 
 async def sezar(message: types.Message):
     user_id = message.from_user.id
@@ -3030,6 +3123,8 @@ async def mayonez(message: types.Message):
         photo=types.FSInputFile(path=file_path), parse_mode='Markdown', reply_markup=keyboard)
     # await message.answer("", reply_markup=keyboard)
     print(user_data)
+
+
 
 
 
