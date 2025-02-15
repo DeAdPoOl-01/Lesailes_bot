@@ -919,7 +919,7 @@ async def kombo(message: types.Message):
     keyboard = types.InlineKeyboardMarkup(inline_keyboard=button, resize_keyboard=True)
     file_path = "image/kombo.jpg"
     caption_text = (f"{item}\n"
-                    "Fri kartoshkasi Coca-cola 0.5\n"
+                    "Fri kartoshkasiCoca-cola 0.5\n"
                     f"Narxi:{price} so'm")
     await message.answer("Miqdorini belgilang", reply_markup=keyboards)
     await message.reply_photo(caption=caption_text,photo=types.FSInputFile(path=file_path), parse_mode='Markdown', reply_markup=keyboard)
@@ -932,7 +932,7 @@ async def checkcallback(callback: types.CallbackQuery):
     user_id = callback.from_user.id
     narx = callback.data
     price = 22000
-    name = "Fri kartoshkasiCoca-cola 0.5\n"
+    description = "Fri kartoshkasiCoca-cola 0.5\n"
     command, item = callback.data.split('_')
     global count
     # global price
@@ -952,8 +952,8 @@ async def checkcallback(callback: types.CallbackQuery):
                 user_data[user_id]['basket'][item] = count
 
         count = 1  # Reset count after adding item to the basket
-        await callback.message.answer(f"Mahsulot: {name} savatga muvaffaqiyatli qo'shildi ✅\n"
-                                    "Davom etamizmi?")
+        await callback.message.answer(f"Mahsulot {item} savatga muvaffaqiyatli qo'shildi ✅")
+        await callback.message.answer(f"Davom etamizmi?")
 
     print(f"Count:{count}")
     button = [
@@ -967,8 +967,8 @@ async def checkcallback(callback: types.CallbackQuery):
     try:
         print(user_data)
         await callback.message.edit_caption(
-            caption="Kombo set\n\n"
-                    f"Nomi: {name}\n"
+            caption="Kombo set\n"
+                    f"{description}"
                     f"Narxi: {price} so'm",
             reply_markup=keyboard
         )
@@ -979,72 +979,51 @@ async def checkcallback(callback: types.CallbackQuery):
             print(f"Xato yuz berdi: {e}")
 
 
-
-
 async def barbeku_burger(message: types.Message):
     user_id = message.from_user.id
-    barbeku_burger = message.text
-    user_data[user_id]['barbeku_burger'] = barbeku_burger
+    item = message.text
+    user_data[user_id]['barbeku_burger'] = item
+    price = 27000
     button = [
-        [types.InlineKeyboardButton(text="-", callback_data='-'),
-         types.InlineKeyboardButton(text="1", callback_data='1'),
-         types.InlineKeyboardButton(text="+", callback_data='+')],
-        [types.InlineKeyboardButton(text="📥 Savatga qo'shish ✅", callback_data='text')]
+        [types.InlineKeyboardButton(text="-", callback_data=f"minus_{item}"),
+         types.InlineKeyboardButton(text="1", callback_data=f"miqdor_{item}"),
+         types.InlineKeyboardButton(text="+", callback_data=f"plus_{item}")],
+        [types.InlineKeyboardButton(text="📥 Savatga qo'shish ✅", callback_data=f"add_{item}")]
     ]
+    buttons = [
+        [types.KeyboardButton(text='👈🏻Ortga'), types.KeyboardButton(text="📥 Savatga qo'shish ✅")]
+    ]
+    keyboards = types.ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True)
     keyboard = types.InlineKeyboardMarkup(inline_keyboard=button, resize_keyboard=True)
     file_path = "image/barbeku_burger.jpg"
-    caption_text = ("1+1 Barbekyu burger\n"
+    caption_text = (f"{item}\n"
                     "Bittasi narxiga ikkita Barbekyu burger! miqdori chegaralangan\n"
-                    "Narxi: 27 000 soʻm")
-    await message.answer("Miqdorini belgilang")
+                    f"Narxi: {price} so'm")
+    await message.answer("Miqdorini belgilang", reply_markup=keyboards)
     await message.reply_photo(caption=caption_text,photo=types.FSInputFile(path=file_path), parse_mode='Markdown', reply_markup=keyboard)
     # await message.answer("", reply_markup=keyboard)
     print(user_data)
 
-# Savatni ko'rish funksiyasi
-@dp.callback_query(lambda c: c.data == "view_basket")
-async def view_basket(callback: types.CallbackQuery):
-    user_id = callback.from_user.id  # Foydalanuvchi ID'sini olish
-
-    # Agar foydalanuvchining savati bo'lsa
-    if user_id in user_data and 'basket' in user_data[user_id] and user_data[user_id]['basket']:
-        basket_items = ""  # Savatdagi mahsulotlarni saqlash uchun bo'sh string
-        total_price = 0  # Umumiy narxni boshlang'ich qiymat
-
-        # Savatdagi barcha mahsulotlar va ularning miqdorini olish
-        for item, quantity in user_data[user_id]['basket'].items():
-            basket_items += f"{item}: {quantity}\n"  # Mahsulot va miqdor
-            total_price += quantity * price  # Umumiy narxni hisoblash
-
-        # Foydalanuvchiga savatdagi mahsulotlar va umumiy narxni yuborish
-        await callback.message.answer(
-            f"Savatdagi mahsulotlar:\n\n{basket_items}\nUmumiy narx: {total_price} so'm"
-        )
-    else:
-        # Agar savat bo'sh bo'lsa
-        await callback.message.answer("Savatda hech qanday mahsulot yo'q.")
-
-
-
-
-
-# user_data[user_id]['basket'] = {item: count}
-
 async def sezar(message: types.Message):
     user_id = message.from_user.id
-    sezar = message.text
-    user_data[user_id]['sezar'] = sezar
+    item = message.text
+    user_data[user_id]['sezar'] = item
+    price = 27000
     button = [
-        [types.InlineKeyboardButton(text="-", callback_data='-'),
-         types.InlineKeyboardButton(text="1", callback_data='1'),
-         types.InlineKeyboardButton(text="+", callback_data='+')],
-        [types.InlineKeyboardButton(text="📥 Savatga qo'shish ✅", callback_data='text')]
+        [types.InlineKeyboardButton(text="-", callback_data=f"minus_{item}"),
+         types.InlineKeyboardButton(text="1", callback_data=f"miqdor_{item}"),
+         types.InlineKeyboardButton(text="+", callback_data=f"plus_{item}")],
+        [types.InlineKeyboardButton(text="📥 Savatga qo'shish ✅", callback_data=f"add_{item}")]
     ]
+    buttons = [
+        [types.KeyboardButton(text='👈🏻Ortga'), types.KeyboardButton(text="📥 Savatga qo'shish ✅")]
+    ]
+    keyboards = types.ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True)
     keyboard = types.InlineKeyboardMarkup(inline_keyboard=button, resize_keyboard=True)
     file_path = "image/sezar.jpg"
-    caption_text = ("1+1 Sezar burger\n"
-                    "Bittasi narxiga ikkita Sezar burger! miqdori chegaralangan\n"
-                    "Narxi: 27 000 soʻm")
+    caption_text = (f"{item}\n"
+                    "Yumshoq bulochka, maxsus panirovka bilan qoplangan sarxil tovuq kotleti, sarxil pomidor bo'laklari, aysberg salati, sezar sousi.\n"
+                    f"Narxi: {price} so'm")
     await message.answer("Miqdorini belgilang")
     await message.reply_photo(caption=caption_text,photo=types.FSInputFile(path=file_path), parse_mode='Markdown', reply_markup=keyboard)
     # await message.answer("", reply_markup=keyboard)
@@ -1052,40 +1031,50 @@ async def sezar(message: types.Message):
 
 async def yangi(message: types.Message):
     user_id = message.from_user.id
-    yangi = message.text
-    user_data[user_id]['yangi'] = yangi
+    item = message.text
+    user_data[user_id]['yangi'] = item
+    price = 35000
     button = [
-        [types.InlineKeyboardButton(text="-", callback_data='-'),
-         types.InlineKeyboardButton(text="1", callback_data='1'),
-         types.InlineKeyboardButton(text="+", callback_data='+')],
-        [types.InlineKeyboardButton(text="📥 Savatga qo'shish ✅", callback_data='text')]
+        [types.InlineKeyboardButton(text="-", callback_data=f"minus_{item}"),
+         types.InlineKeyboardButton(text="1", callback_data=f"miqdor_{item}"),
+         types.InlineKeyboardButton(text="+", callback_data=f"plus_{item}")],
+        [types.InlineKeyboardButton(text="📥 Savatga qo'shish ✅", callback_data=f"add_{item}")]
     ]
+    buttons = [
+        [types.KeyboardButton(text='👈🏻Ortga'), types.KeyboardButton(text="📥 Savatga qo'shish ✅")]
+    ]
+    keyboards = types.ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True)
     keyboard = types.InlineKeyboardMarkup(inline_keyboard=button, resize_keyboard=True)
     file_path = "image/yangi.jpg"
-    caption_text = ("Yangi set\n"
+    caption_text = (f"{item}\n"
                     "Klassik burgerNagets, 3 donaLes tea!\n"
-                    "Narxi: 35 000 soʻm")
-    await message.answer("Miqdorini belgilang")
+                    f"Narxi: {price} so'm")
+    await message.answer("Miqdorini belgilang", reply_markup=keyboards)
     await message.reply_photo(caption=caption_text,photo=types.FSInputFile(path=file_path), parse_mode='Markdown', reply_markup=keyboard)
     # await message.answer("", reply_markup=keyboard)
     print(user_data)
 
 async def klassik(message: types.Message):
     user_id = message.from_user.id
-    klassik = message.text
-    user_data[user_id]['klassik'] = klassik
+    item = message.text
+    user_data[user_id]['klassik'] = item
+    price = 38000
     button = [
-        [types.InlineKeyboardButton(text="-", callback_data='-'),
-         types.InlineKeyboardButton(text="1", callback_data='1'),
-         types.InlineKeyboardButton(text="+", callback_data='+')],
-        [types.InlineKeyboardButton(text="📥 Savatga qo'shish ✅", callback_data='text')]
+        [types.InlineKeyboardButton(text="-", callback_data=f"minus_{item}"),
+         types.InlineKeyboardButton(text="1", callback_data=f"miqdor_{item}"),
+         types.InlineKeyboardButton(text="+", callback_data=f"plus_{item}")],
+        [types.InlineKeyboardButton(text="📥 Savatga qo'shish ✅", callback_data=f"add_{item}")]
     ]
+    buttons = [
+        [types.KeyboardButton(text='👈🏻Ortga'), types.KeyboardButton(text="📥 Savatga qo'shish ✅")]
+    ]
+    keyboards = types.ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True)
     keyboard = types.InlineKeyboardMarkup(inline_keyboard=button, resize_keyboard=True)
     file_path = "image/klassik.jpg"
-    caption_text = ("Klassik set\n"
+    caption_text = (f"{item}\n"
                     "Klassik burgerCoca-cola 0.3 Fri kartoshkasi S\n"
-                    "Narxi: 38 000 soʻm")
-    await message.answer("Miqdorini belgilang")
+                    f"Narxi: {price} so'm")
+    await message.answer("Miqdorini belgilang", reply_markup=keyboards)
     await message.reply_photo(caption=caption_text,photo=types.FSInputFile(path=file_path), parse_mode='Markdown', reply_markup=keyboard)
     # await message.answer("", reply_markup=keyboard)
     print(user_data)
@@ -1093,20 +1082,25 @@ async def klassik(message: types.Message):
 
 async def skul(message: types.Message):
     user_id = message.from_user.id
-    skul = message.text
-    user_data[user_id]['skul'] = skul
+    item = message.text
+    user_data[user_id]['skul'] = item
+    price = 41000
     button = [
-        [types.InlineKeyboardButton(text="-", callback_data='-'),
-         types.InlineKeyboardButton(text="1", callback_data='1'),
-         types.InlineKeyboardButton(text="+", callback_data='+')],
-        [types.InlineKeyboardButton(text="📥 Savatga qo'shish ✅", callback_data='text')]
+        [types.InlineKeyboardButton(text="-", callback_data=f"minus_{item}"),
+         types.InlineKeyboardButton(text="1", callback_data=f"miqdor_{item}"),
+         types.InlineKeyboardButton(text="+", callback_data=f"plus_{item}")],
+        [types.InlineKeyboardButton(text="📥 Savatga qo'shish ✅", callback_data=f"add_{item}")]
     ]
+    buttons = [
+        [types.KeyboardButton(text='👈🏻Ortga'), types.KeyboardButton(text="📥 Savatga qo'shish ✅")]
+    ]
+    keyboards = types.ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True)
     keyboard = types.InlineKeyboardMarkup(inline_keyboard=button, resize_keyboard=True)
     file_path = "image/skul.jpg"
-    caption_text = ("Skul set\n"
+    caption_text = (f"{item}\n"
                     "Hot-dogCoca-cola 0.3 Fri kartoshkasi SKetchup sousi\n"
-                    "Narxi: 41 000 soʻm")
-    await message.answer("Miqdorini belgilang")
+                    f"Narxi: {price} so'm")
+    await message.answer("Miqdorini belgilang", reply_markup=keyboards)
     await message.reply_photo(caption=caption_text,
         photo=types.FSInputFile(path=file_path), parse_mode='Markdown', reply_markup=keyboard)
     # await message.answer("", reply_markup=keyboard)
@@ -1116,20 +1110,25 @@ async def skul(message: types.Message):
 
 async def dostlar(message: types.Message):
     user_id = message.from_user.id
-    dostlar = message.text
-    user_data[user_id]['dostlar'] = dostlar
+    item = message.text
+    user_data[user_id]['dostlar'] = item
+    price = 47000
     button = [
-        [types.InlineKeyboardButton(text="-", callback_data='-'),
-         types.InlineKeyboardButton(text="1", callback_data='1'),
-         types.InlineKeyboardButton(text="+", callback_data='+')],
-        [types.InlineKeyboardButton(text="📥 Savatga qo'shish ✅", callback_data='text')]
+        [types.InlineKeyboardButton(text="-", callback_data=f"minus_{item}"),
+         types.InlineKeyboardButton(text="1", callback_data=f"miqdor_{item}"),
+         types.InlineKeyboardButton(text="+", callback_data=f"plus_{item}")],
+        [types.InlineKeyboardButton(text="📥 Savatga qo'shish ✅", callback_data=f"add_{item}")]
     ]
+    buttons = [
+        [types.KeyboardButton(text='👈🏻Ortga'), types.KeyboardButton(text="📥 Savatga qo'shish ✅")]
+    ]
+    keyboards = types.ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True)
     keyboard = types.InlineKeyboardMarkup(inline_keyboard=button, resize_keyboard=True)
     file_path = "image/do'stlar.jpg"
-    caption_text = ("Do’stlar 1х\n"
+    caption_text = (f"{item}\n"
                     "Qanotchalar 3Tovuq sharchalari 2 Tovuq nagetsi 2Kartoshka fri SKetchup\n"
-                    "Narxi: 47 000 soʻm")
-    await message.answer("Miqdorini belgilang")
+                    f"Narxi: {price} so'm")
+    await message.answer("Miqdorini belgilang", reply_markup=keyboards)
     await message.reply_photo(caption=caption_text,
         photo=types.FSInputFile(path=file_path), parse_mode='Markdown', reply_markup=keyboard)
     # await message.answer("", reply_markup=keyboard)
@@ -1137,20 +1136,25 @@ async def dostlar(message: types.Message):
 
 async def dostlar_achchiq(message: types.Message):
     user_id = message.from_user.id
-    dostlar_achchiq = message.text
-    user_data[user_id]['dostlar_achchiq'] = dostlar_achchiq
+    item = message.text
+    user_data[user_id]['dostlar_achchiq'] = item
+    price = 47000
     button = [
-        [types.InlineKeyboardButton(text="-", callback_data='-'),
-         types.InlineKeyboardButton(text="1", callback_data='1'),
-         types.InlineKeyboardButton(text="+", callback_data='+')],
-        [types.InlineKeyboardButton(text="📥 Savatga qo'shish ✅", callback_data='text')]
+        [types.InlineKeyboardButton(text="-", callback_data=f"minus_{item}"),
+         types.InlineKeyboardButton(text="1", callback_data=f"miqdor_{item}"),
+         types.InlineKeyboardButton(text="+", callback_data=f"plus_{item}")],
+        [types.InlineKeyboardButton(text="📥 Savatga qo'shish ✅", callback_data=f"add_{item}")]
     ]
+    buttons = [
+        [types.KeyboardButton(text='👈🏻Ortga'), types.KeyboardButton(text="📥 Savatga qo'shish ✅")]
+    ]
+    keyboards = types.ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True)
     keyboard = types.InlineKeyboardMarkup(inline_keyboard=button, resize_keyboard=True)
     file_path = "image/do'stlar_achchiq.jpg"
-    caption_text = ("Do’stlar 1х, achchiq\n"
+    caption_text = (f"{item}\n"
                     "Achchiq qanotchalar 3Tovuq sharchalari 2Tovuq nagetsi 2Kartoshka fri SKetchup\n"
-                    "Narxi: 47 000 soʻm")
-    await message.answer("Miqdorini belgilang")
+                    f"Narxi: {price} so'm")
+    await message.answer("Miqdorini belgilang", reply_markup=keyboards)
     await message.reply_photo(caption=caption_text,
         photo=types.FSInputFile(path=file_path), parse_mode='Markdown', reply_markup=keyboard)
     # await message.answer("", reply_markup=keyboard)
@@ -1159,20 +1163,25 @@ async def dostlar_achchiq(message: types.Message):
 
 async def qiyqiriq(message: types.Message):
     user_id = message.from_user.id
-    qiyqiriq = message.text
-    user_data[user_id]['qiyqiriq'] = qiyqiriq
+    item = message.text
+    user_data[user_id]['qiyqiriq'] = item
+    price = 49000
     button = [
-        [types.InlineKeyboardButton(text="-", callback_data='-'),
-         types.InlineKeyboardButton(text="1", callback_data='1'),
-         types.InlineKeyboardButton(text="+", callback_data='+')],
-        [types.InlineKeyboardButton(text="📥 Savatga qo'shish ✅", callback_data='text')]
+        [types.InlineKeyboardButton(text="-", callback_data=f"minus_{item}"),
+         types.InlineKeyboardButton(text="1", callback_data=f"miqdor_{item}"),
+         types.InlineKeyboardButton(text="+", callback_data=f"plus_{item}")],
+        [types.InlineKeyboardButton(text="📥 Savatga qo'shish ✅", callback_data=f"add_{item}")]
     ]
+    buttons = [
+        [types.KeyboardButton(text='👈🏻Ortga'), types.KeyboardButton(text="📥 Savatga qo'shish ✅")]
+    ]
+    keyboards = types.ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True)
     keyboard = types.InlineKeyboardMarkup(inline_keyboard=button, resize_keyboard=True)
     file_path = "image/qiyqiriq.jpg"
-    caption_text = ("Qiyqiriq set \n"
+    caption_text = (f"{item}\n"
                     "Barbekyu lesterPishloqli toviq sharchalari, 3 donaAystiJo'shqin salati \n"
-                    "Narxi: 49 000 soʻm")
-    await message.answer("Miqdorini belgilang")
+                    f"Narxi: {price} so'm")
+    await message.answer("Miqdorini belgilang", reply_markup=keyboards)
     await message.reply_photo(caption=caption_text,
         photo=types.FSInputFile(path=file_path), parse_mode='Markdown', reply_markup=keyboard)
     # await message.answer("", reply_markup=keyboard)
